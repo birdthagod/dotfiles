@@ -1,8 +1,4 @@
 #!/bin/sh
-#
-#    fet.sh
-#  a fetch in pure POSIX shell
-#
 clear
 # supress errors
 exec 2>/dev/null
@@ -18,9 +14,6 @@ eq() {  # equals  |  [ a = b ] with globbing
 wm=$XDG_CURRENT_DESKTOP
 [ "$wm" ] || wm=$DESKTOP_SESSION
 
-## Distro
-# freedesktop.org/software/systemd/man/os-release.html
-# a common file that has variables about the distro
 for os in /etc/os-release /usr/lib/os-release; do
 	# some POSIX shells exit when trying to source a file that doesn't exist
 	[ -f $os ] && . $os && break
@@ -45,10 +38,6 @@ if [ -e /proc/$$/comm ]; then
 		case $name in
 			*sh|"${0##*/}") ;;  # skip shells
 			*[Ll]ogin*|*init*|*systemd*) break;;  # exit when the top is reached
-			# anything else can be assumed to be the terminal
-			# this has the side affect of catching tmux, but tmux
-			# detaches from the terminal and therefore ignoring that
-			# will just make the init the term
 			*) term=$name
 		esac
 	done
@@ -64,9 +53,6 @@ if [ -e /proc/$$/comm ]; then
 			esac
 		done
 
-	## Memory
-	# loop over lines in /proc/meminfo until it reaches MemTotal,
-	# then convert the amount (second word) from KB to MB
 	while read -r line; do
 		eq "$line" 'MemTotal*' && set -- $line && break
 	done < /proc/meminfo
@@ -79,9 +65,6 @@ if [ -e /proc/$$/comm ]; then
 			model\ name*) cpu=${line##*: }; break;;
 		esac
 	done < /proc/cpuinfo
-
-	## Uptime
-	# the simple math is shamefully stolen from aosync
 	IFS=. read -r uptime _ < /proc/uptime
 	d=$((uptime / 60 / 60 / 24))
 	up=$(printf %02d:%02d $((uptime / 60 / 60 % 24)) $((uptime / 60 % 60)))
@@ -96,18 +79,11 @@ if [ -e /proc/$$/comm ]; then
 	read -r model < /sys/devices/virtual/dmi/id/product_name
 	# invalid model handling
 	case $model in
-		# alternate file with slightly different info
-		# on my laptop it has the device model (instead of 'hp notebook')
-		# on my desktop it has the extended motherboard model
 		'System '*|'Default '*)
 			read -r model < /sys/devices/virtual/dmi/id/board_name
 	esac
 
-	## Packages
-	# clean environment, then make every file in the dir an argument,
-	# then save the argument count to $pkgs
 	set --
-	# kiss, arch, debian, void, gentoo
 	for i in '/var/db/kiss/installed/*'  '/var/lib/pacman/local/[0-9a-z]*' \
 	'/var/lib/dpkg/info/*.list'  '/var/db/xbps/.*'  '/var/db/pkg/*/*'; do
 		set -- $i
@@ -116,7 +92,7 @@ if [ -e /proc/$$/comm ]; then
 
 	read -r host < /proc/sys/kernel/hostname
 elif [ -f /var/run/dmesg.boot ]; then
-	# Both OpenBSD and FreeBSD use this file, however they're formatted differently
+
 	read -r bsd < /var/run/dmesg.boot
 	case $bsd in
 	Open*)
