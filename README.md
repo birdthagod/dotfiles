@@ -24,6 +24,6 @@ Music: Cava
 
 -----------
 
-Feh: [Here (NOT MINES!)](https://github.com/beikommen/dotiles/blob/main/feh.sh)
+Feh: [Here (NOT MINES!)](https://github.com/beikommen/dotfiles/blob/main/feh.sh)
 
 -----------
